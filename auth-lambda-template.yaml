@@ -1,0 +1,81 @@
+Parameters:
+  Username:
+    Type: String
+  Password:
+    Type: String
+  AllowUserAgent:
+    Type: String
+Resources:
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/mail-photo-frame-auth
+  IamRoleLambdaExecution:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - edgelambda.amazonaws.com
+      Policies:
+        - PolicyName: mail-photo-frame-auth-lambda
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:CreateLogGroup
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*
+
+  Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      FunctionName: mail-photo-frame-auth
+      Role: !GetAtt IamRoleLambdaExecution.Arn
+      Runtime: nodejs10.x
+      Code:
+        ZipFile: !Sub |
+          module.exports.handler = (event, context, callback) => {
+
+            // Get request and request headers
+            const request = event.Records[0].cf.request;
+            const headers = request.headers;
+            const userAgent = headers['user-agent'][0].value;
+
+            // Configure authentication
+            const authUser = '${Username}';
+            const authPass = '${Password}';
+
+            // Construct the Basic Auth string
+            const authString = 'Basic ' + new Buffer(authUser + ':' + authPass).toString('base64');
+
+            // Require Basic authentication
+            if (!userAgent.toLowerCase().includes('${AllowUserAgent}'.toLowerCase()) && (typeof headers.authorization == 'undefined' || headers.authorization[0].value != authString)) {
+              console.log('Blocking: ' + userAgent);
+              const body = 'Unauthorized';
+              const response = {
+                status: '401',
+                statusDescription: 'Unauthorized',
+                body: body,
+                headers: {
+                  'www-authenticate': [{
+                    key: 'WWW-Authenticate',
+                    value: 'Basic'
+                  }]
+                },
+              };
+              callback(null, response);
+            }
+
+            // Continue request processing if authentication passed
+            callback(null, request);
+          };

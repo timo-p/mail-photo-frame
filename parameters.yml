@@ -1,0 +1,6 @@
+mail_username:
+mail_password:
+imap_address:
+auth_lambda_arn:
+ga_id:
+schedule_enabled:
