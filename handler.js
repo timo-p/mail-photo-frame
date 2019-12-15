@@ -198,7 +198,7 @@ const updater = async event => {
   console.log("Attachments fetched");
 
   if (attachments.length > 0) {
-    updateAttachments(attachments);
+    await updateAttachments(attachments);
   }
 
   console.log("Moving messages to READ_PHOTOS");

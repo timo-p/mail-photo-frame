@@ -1,23 +1,29 @@
-body {
-  background-color: black;
-}
-
-html,
-body,
-#slideshow,
-#slideshow div,
-#slideshow img {
+html {
+  overflow: hidden;
   height: 100%;
 }
 
-#slideshow div {
-  display: none;
-  text-align: center;
+body {
+  background-color: black;
+  margin: 0px;
+  padding: 0px;
+  height: 100%;
 }
 
-#slideshow img {
+#slideshow {
+  height: 100%;
+}
+
+.image {
+  height: 100%;
+  width: 100%;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
   margin-left: auto;
   margin-right: auto;
+  display: none;
+  text-align: center;
 }
 
 .button-container {
