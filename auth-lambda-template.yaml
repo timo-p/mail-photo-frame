@@ -6,10 +6,6 @@ Parameters:
   AllowUserAgent:
     Type: String
 Resources:
-  LambdaLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: /aws/lambda/mail-photo-frame-auth
   IamRoleLambdaExecution:
     Type: AWS::IAM::Role
     Properties:
