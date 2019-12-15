@@ -48,10 +48,18 @@ $(document).ready(function () {
   }, 3600000);
 
   $('#prev').click(function () {
+    gtag('event', 'ClickPrevious', {
+      'event_category': 'Buttons',
+      'event_label': 'Previous',
+    });
     show(false);
   });
 
   $('#next').click(function () {
+    gtag('event', 'ClickNext', {
+      'event_category': 'Buttons',
+      'event_label': 'Next',
+    });
     show(true);
   });
 });
