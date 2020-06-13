@@ -5,6 +5,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const jo = require("jpeg-autorotate");
+const piexif = require('piexifjs');
 const AWS = require("aws-sdk");
 const crypto = require("crypto");
 const handlebars = require("handlebars");
@@ -101,7 +102,17 @@ const getAttachments = async (imaps, connection, messages) => {
   return await Promise.all(attachmentPromises);
 };
 
-const rotateImage = async (buffer, filename) => {
+const deleteThumbnailFromExif = (imageBuffer) => {
+  const imageString = imageBuffer.toString('binary');
+  const exifObj = piexif.load(imageString);
+  delete exifObj.thumbnail;
+  delete exifObj['1st'];
+  const exifBytes = piexif.dump(exifObj);
+  const newImageString = piexif.insert(exifBytes, imageString);
+  return Buffer.from(newImageString, 'binary');
+}
+
+const rotateImage = async (buffer, filename, isRetry) => {
   try {
     const res = await jo.rotate(buffer, {
       quality: 100
@@ -114,6 +125,9 @@ const rotateImage = async (buffer, filename) => {
       )
     ) {
       console.log(`The orientation of ${filename} is already correct!`);
+    } else if (!isRetry) {
+      console.log('Removing thumbnail from image and retrying');
+      return rotateImage(deleteThumbnailFromExif(buffer), filename, true);
     } else {
       throw error;
     }
