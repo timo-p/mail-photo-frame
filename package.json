@@ -13,7 +13,7 @@
     "serverless-cf-vars": "0.3.2"
   },
   "dependencies": {
-    "aws-sdk": "2.585.0",
+    "aws-sdk": "2.814.0",
     "handlebars": "4.5.3",
     "imap-simple": "4.3.0",
     "jimp": "0.9.3",
